@@ -1,0 +1,100 @@
+<script>
+
+function process(){
+		var content = document.getElementById("content").value;
+		if(content == null || content == undefined || content.trim() == ""){
+			alert("Please provide some input...");
+			return;
+		}
+		
+		var descriptionChecked = document.getElementById("description").checked;
+		var inlineHelpTextChecked = document.getElementById("inlineHelpText").checked;
+		var newContent = "";
+		var items = content.split("\n");
+		var tagON = false;
+		var descritpionFound = false;
+		var helpTextFound = false;
+		var label = null;
+		for(i = 0;i< items.length;i++){
+			var item = items[i].trim();
+			
+			if(item.toLowerCase() == "<fields>"){
+					 tagON = true; 
+					 descritpionFound = false;
+					 helpTextFound = false;
+					 newContent += item+"\n";
+					 continue;
+			}
+			if(item.toLowerCase() == "</fields>"){
+					tagON = false; 
+					if(helpTextFound == false && inlineHelpTextChecked == true){
+							newContent += "\t<inlineHelpText>"+label+"</inlineHelpText>\n";
+					}
+					if(descritpionFound == false && descriptionChecked == true){
+							newContent += "\t<description>"+label+"</description>\n";
+					}
+					helpTextFound = false;
+					descritpionFound = false;
+					newContent += item+"\n";
+					continue;
+			}
+			if(tagON){
+						if(item.toLowerCase().startsWith("<label>")){
+								var len = "<label>".length;
+								label = item.substring(len, item.length - (len+1));
+								console.log(label);
+						}
+						
+						if(item.toLowerCase().startsWith("<description>")){
+								descritpionFound = true;
+						}
+						
+						if(item.toLowerCase().startsWith("<inlineHelpText>")){
+								helpTextFound = true;
+						}
+						newContent += "\t"+item+"\n";
+						continue;
+			}
+			newContent += item+"\n";
+		}
+		
+		
+		document.getElementById("newContent").value = newContent;
+		
+}
+</script>
+
+<style>
+
+#main .sub
+{
+    float: left;
+    margin-right: 10px;
+    height: 100%;
+    
+}
+
+textarea{
+		margin: 0px;
+		width: 600px;
+		height: 600px; 
+}
+</style>
+
+<div id="main">
+   
+    <div class="sub">
+        <textarea id="content" placeholder="Put Salesforce's Object meta data here..."></textarea>
+    </div>
+    <div class="sub">
+        Add missing tags...</br></br>
+		<input type="checkbox" name="tag" value="description" id="description"> Description</br>
+		<input type="checkbox" name="tag" value="inlineHelpText" id="inlineHelpText"> Inline Help Text </br>
+		</br></br>
+		<button type="button" onclick="process()">Fix it!</button>
+
+    </div>
+    <div class="sub">
+       <textarea id="newContent" placeholder="copy the converted file from here..."></textarea>
+    </div>
+</div>
